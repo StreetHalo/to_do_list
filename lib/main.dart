@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:to_do_list/pages/Calendar.dart';
 import 'package:to_do_list/pages/CurrentTasks.dart';
 
 void main() {
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Azaza Title",
+      title: "To-do",
       home: MainWidget(),
     );
   }
@@ -30,7 +31,8 @@ class _MainWidgetState extends State<MainWidget> {
 
   List<Widget> _widgetOptions = [
     CurrentTasks(),
-    Text("data")
+    Calendar(),
+    Text("Settings")
   ];
 
   void _onItemTapped(int index){
@@ -53,6 +55,9 @@ class _MainWidgetState extends State<MainWidget> {
           BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today_sharp),
+              label: "Calendar"),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: "Settings")
