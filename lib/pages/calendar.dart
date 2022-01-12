@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'AddTaskDialog.dart';
+import 'addTaskDialog.dart';
 
 class Calendar extends StatefulWidget{
 
@@ -16,7 +16,7 @@ class CalendarState extends State<Calendar>{
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ElevatedButton.icon(onPressed: (){clickClack(context);},
+          ElevatedButton.icon(onPressed: (){openTaskDialog(context);},
               icon: Icon(Icons.add),
               label: Text("Добавить задачу"),
               style: ElevatedButton.styleFrom(
@@ -30,9 +30,8 @@ class CalendarState extends State<Calendar>{
       ),
     );
 }
-  clickClack(BuildContext context) => openPage(context);
 
-  openPage(BuildContext context) {
+  openTaskDialog(BuildContext context) {
     showModalBottomSheet(context: context, builder: (context){
       return AddTaskDialog();
     });

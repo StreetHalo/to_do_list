@@ -1,10 +1,16 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:to_do_list/pages/Calendar.dart';
-import 'package:to_do_list/pages/CurrentTasks.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:to_do_list/assets/colors.dart';
+import 'package:to_do_list/data/task.dart';
+import 'package:to_do_list/pages/calendar.dart';
+import 'package:to_do_list/pages/currentTasks.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter<Task>(TaskAdapter());
+  await Hive.openBox<Task>('tasks');
   runApp(MyApp());
 }
 
@@ -13,6 +19,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log("widget");
     return MaterialApp(
       title: "To-do",
       home: MainWidget(),
@@ -38,15 +45,11 @@ class _MainWidgetState extends State<MainWidget> {
   void _onItemTapped(int index){
     setState(() {
       _selectedIndex = index;
-      log('position $index');
     });
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Gucci flip-flap"),
-      ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
@@ -62,9 +65,9 @@ class _MainWidgetState extends State<MainWidget> {
               icon: Icon(Icons.settings),
               label: "Settings")
         ],
-        backgroundColor: Colors.blue,
+        backgroundColor: UserColors.main,
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber,
+        selectedItemColor: UserColors.selected,
         onTap: _onItemTapped,
       ),
     );
