@@ -5,6 +5,8 @@ class Strings{
 
   static const String add_title = "Добавить";
 
+  static const String save_edit_title = "Сохранить";
+
   static const String cancel_title = "Отмена";
 
   static const String task_time_rang_l = "Не важно";
@@ -20,4 +22,8 @@ class Strings{
   static const String dialog_rang_title = "Статус задачи";
 
   static const String msg_empty_about = "Пожалуйста, введите описание задачи";
+
+  static const String done = "Готово";
+
+  static const String remove = "Удалить";
 }

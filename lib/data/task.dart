@@ -38,4 +38,12 @@ class Task {
     int index = task?.rangIndex ?? UserColors.getDefaultRangIndex();
     return UserColors.rangColors.values.elementAt(index);
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Task && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

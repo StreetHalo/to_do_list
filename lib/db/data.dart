@@ -16,6 +16,17 @@ mixin Data {
 
   void removeTask(Task task)  {
     var box = Hive.box<Task>('tasks');
-    box.delete(task);
+    box.deleteAt(box.values.toList().indexOf(task));
+  }
+
+  Task getTaskById(String id){
+  var box = Hive.box<Task>('tasks');
+  return box.values.toList().firstWhere((element) => element.id == id);
+  }
+
+  void editTask(Task editedTask){
+    var task = getTaskById(editedTask.id);
+    removeTask(task);
+    insertTask(editedTask);
   }
 }

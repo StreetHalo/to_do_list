@@ -1,4 +1,7 @@
 
+import 'dart:developer';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/strings.dart';
@@ -9,25 +12,33 @@ import 'package:intl/intl.dart';
 
 class AddTaskDialog extends StatefulWidget{
   Task? currentTask;
+  bool isEditDialog = false;
+
   AddTaskDialog({Task? task}){
-   currentTask = task ?? Task.getDefTask();
+    isEditDialog = task != null;
+    currentTask = task ?? Task.getDefTask();
   }
   createState() => AddTaskState();
 }
 
 class AddTaskState extends State<AddTaskDialog> with Data{
 
-  FocusNode _myFocusNode = new FocusNode();
   Color _focusedTextColor = Colors.black;
   Color _unfocusedTextColor = Colors.blue;
   Color _errorTextColor = Colors.red;
   TextEditingController aboutTxtController = TextEditingController();
   TextEditingController dataTxtController = TextEditingController();
-  DateTime _selectedDate = DateTime(DateTime.now().year);
+  DateTime? _selectedDate;
   String dateFormat = "dd/MM/yyyy";
+  final _validationKey = GlobalKey<FormState>();
 
-  @override
+  AddTaskState(){
+   _selectedDate = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
+  }
+
+ @override
   Widget build(BuildContext context) {
+    aboutTxtController.text = widget.currentTask?.about ?? "";
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Padding(
@@ -51,7 +62,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
                     child: TextButton.icon(
                       icon: Icon(Icons.calendar_today),
                       label: Text(
-                          DateFormat(dateFormat).format(_selectedDate)
+                          DateFormat(dateFormat).format(_selectedDate!)
                     ),
                       onPressed: _showDatePicker,
                     ),
@@ -90,58 +101,82 @@ class AddTaskState extends State<AddTaskDialog> with Data{
               ],
             ),
             SizedBox(height: 16),
-            TextFormField(
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return Strings.msg_empty_about;
-                }
-                return null;
-              },
-              controller: aboutTxtController,
-              focusNode: _myFocusNode,
-              maxLines: 3,
-              style: TextStyle(
-                fontSize: 14
-              ),
-              decoration: InputDecoration(
-                isCollapsed: true,
-                labelText: Strings.add_task_what_need_to_do,
-                errorText: validateAboutText(aboutTxtController.text),
-                labelStyle: TextStyle(
-                  color: _focusedTextColor
+            Form(
+              key: _validationKey,
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return Strings.msg_empty_about;
+                  }
+                  return null;
+                },
+                controller: aboutTxtController,
+                maxLines: 3,
+                style: TextStyle(
+                  fontSize: 16,
                 ),
-                contentPadding: EdgeInsets.all(6),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(
-                    color: _focusedTextColor,
-                  )
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                decoration: InputDecoration(
+                  isCollapsed: false,
+                  labelText: Strings.add_task_what_need_to_do,
+                  labelStyle: TextStyle(
+                    fontSize: 14,
+                    color: _focusedTextColor
+                  ),
+                  contentPadding: EdgeInsets.all(12),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
                     borderSide: BorderSide(
-                    color: _unfocusedTextColor,
-                    width: 1
-                  )
+                      color: _focusedTextColor,
+                    )
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(
+                      color: _unfocusedTextColor,
+                      width: 1
+                    )
+                  ),
+                    errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderSide: BorderSide(color: _errorTextColor, width: 1))
                 ),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: _errorTextColor, width: 1))),
+              ),
             ),
             SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: ElevatedButton(
-                  onPressed: (){
-                    addNewTask();
-                  },
-                  child: Text(
-                      Strings.add_title.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white
-                    ),
-                  )
+            Visibility(
+              visible: widget.isEditDialog == false,
+              child: SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: ElevatedButton(
+                    onPressed: (){
+                      _addNewTask();
+                    },
+                    child: Text(
+                        Strings.add_title.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white
+                      ),
+                    )
+                ),
+              ),
+            ),
+            Visibility(
+              visible: widget.isEditDialog == true,
+              child: SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: ElevatedButton(
+                    onPressed: (){
+                      _editTask();
+                    },
+                    child: Text(
+                      Strings.save_edit_title.toUpperCase(),
+                      style: TextStyle(
+                          color: Colors.white
+                      ),
+                    )
+                ),
               ),
             ),
             SizedBox(
@@ -174,7 +209,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
           firstDate: DateTime(currentYear),
           lastDate: DateTime(currentYear + 1)).then((value) => {
             if(value != null) _selectedDate = value,
-            setState(() {})
+            this.setState(() {}),
     });
   }
 
@@ -245,27 +280,35 @@ class AddTaskState extends State<AddTaskDialog> with Data{
     );
   }
 
-  void addNewTask() {
-    if(aboutTxtController.text.isEmpty) {
-      return;
-    }
-
+  void _addNewTask() {
+    _validationKey.currentState?.validate();
+    if(aboutTxtController.text.isEmpty) return;
     Task newTask = Task(
           aboutTxtController.text,
-          _selectedDate.microsecondsSinceEpoch,
+          _selectedDate?.millisecondsSinceEpoch ?? 0,
           Uuid().v4(),
-          1
+          widget.currentTask?.rangIndex ?? 0
       );
       insertTask(newTask);
       Navigator.pop(context);
     }
-}
 
-String? validateAboutText(String text) {
-    if(text.isNotEmpty) return null;
-      else return "etretertert";
-}
+    void _editTask(){
+      _validationKey.currentState?.validate();
+      if(aboutTxtController.text.isEmpty) return;
+      Task newTask = Task(
+          aboutTxtController.text,
+          _selectedDate?.millisecondsSinceEpoch ?? 0,
+          widget.currentTask?.id ?? "",
+          widget.currentTask?.rangIndex ?? 0
+      );
+      log("edit");
+      editTask(newTask);
+      Navigator.pop(context);
 
+    }
+
+}
 
 class TitleWidget extends StatelessWidget {
   const TitleWidget({
