@@ -38,7 +38,8 @@ class AddTaskState extends State<AddTaskDialog> with Data{
 
  @override
   Widget build(BuildContext context) {
-    aboutTxtController.text = widget.currentTask?.about ?? "";
+    if(widget.isEditDialog && aboutTxtController.text.isEmpty)
+      aboutTxtController.text = widget.currentTask?.about ?? "";
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Padding(
@@ -209,7 +210,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
           firstDate: DateTime(currentYear),
           lastDate: DateTime(currentYear + 1)).then((value) => {
             if(value != null) _selectedDate = value,
-            this.setState(() {}),
+           // this.setState(() {}),
     });
   }
 
@@ -295,7 +296,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
 
     void _editTask(){
       _validationKey.currentState?.validate();
-      if(aboutTxtController.text.isEmpty) return;
+      if(widget.currentTask?.about.isEmpty ?? true) return;
       Task newTask = Task(
           aboutTxtController.text,
           _selectedDate?.millisecondsSinceEpoch ?? 0,

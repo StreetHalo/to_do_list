@@ -12,7 +12,7 @@ class UserColors{
 
   static const MaterialColor highTaskMark = Colors.red;
 
-  static const Map<String, MaterialColor> rangColors = {
+  static const Map<String, Color> rangColors = {
       Strings.task_time_rang_h: highTaskMark,
       Strings.task_time_rang_m: middleTaskMark,
       Strings.task_time_rang_l: lowTaskMark,
@@ -20,5 +20,9 @@ class UserColors{
 
  static int getDefaultRangIndex(){
     return (rangColors.length / 2).ceil();
+  }
+
+  static Color getTaskBackground(Color color){
+   return color.withAlpha(45);
   }
 }

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/strings.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
@@ -43,15 +44,17 @@ class TaskList extends State<CurrentTasks> with Data {
         itemCount: tasks.length,
         itemBuilder: (context, index) {
           Task _task = tasks[index];
-          return getSlide(_task);
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: getSlide(_task),
+          );
         });
   }
 
   Slidable getSlide(Task _task) => Slidable(
         key: const ValueKey(0),
-
         endActionPane: ActionPane(
-          motion: ScrollMotion(),
+          motion: DrawerMotion(),
           children: [
             SlidableAction(
               flex: 2,
@@ -67,7 +70,7 @@ class TaskList extends State<CurrentTasks> with Data {
             SlidableAction(
               flex: 2,
               onPressed: (_) {},
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.amber,
               foregroundColor: Colors.white,
               icon: Icons.done,
               label: Strings.done,
@@ -76,12 +79,23 @@ class TaskList extends State<CurrentTasks> with Data {
         ),
         child: getTaskByCard(_task),
       );
-  GestureDetector getTaskByCard(Task _task){
-    return GestureDetector(
+  InkWell getTaskByCard(Task _task){
+    return InkWell(
       onTap: (){
-        openTaskDialog(context, _task);
+        openTaskDialog(context, Task(
+            _task.about,
+            _task.timestamp,
+            _task.id,
+            _task.rangIndex
+        ));
       },
-      child: Card(
+      child: Container(
+        decoration: BoxDecoration(
+          color: UserColors.getTaskBackground(UserColors.rangColors.values.elementAt(_task.rangIndex)),
+          border: Border.all(color: Colors.black12),
+          borderRadius: BorderRadius.all(Radius.circular(0))
+        ),
+
         child: Padding(
             padding: EdgeInsets.all(10),
             child: Column(
