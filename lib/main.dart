@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/pages/calendar.dart';
@@ -47,6 +48,11 @@ class _MainWidgetState extends State<MainWidget> {
       _selectedIndex = index;
     });
   }
+
+  _MainWidgetState(){
+    initializeDateFormatting();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

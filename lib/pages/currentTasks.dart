@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:to_do_list/assets/colors.dart';
+import 'package:to_do_list/assets/ghost_icons.dart';
 import 'package:to_do_list/assets/strings.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
@@ -62,7 +63,7 @@ class TaskList extends State<CurrentTasks> with Data {
                 removeTask(_task);
                 setState(() {});
               },
-              backgroundColor: Colors.red,
+              backgroundColor: UserColors.taskRemove,
               foregroundColor: Colors.white,
               icon: Icons.delete_forever,
               label: Strings.remove,
@@ -70,7 +71,7 @@ class TaskList extends State<CurrentTasks> with Data {
             SlidableAction(
               flex: 2,
               onPressed: (_) {},
-              backgroundColor: Colors.amber,
+              backgroundColor: UserColors.taskDone,
               foregroundColor: Colors.white,
               icon: Icons.done,
               label: Strings.done,
@@ -79,6 +80,7 @@ class TaskList extends State<CurrentTasks> with Data {
         ),
         child: getTaskByCard(_task),
       );
+
   InkWell getTaskByCard(Task _task){
     return InkWell(
       onTap: (){
@@ -127,7 +129,7 @@ class TaskList extends State<CurrentTasks> with Data {
   }
 
   Widget getBody() {
-    if(getCurrentTasks().isNotEmpty) return getListView(getCurrentTasks());
+    if(getCurrentDayTasks().isNotEmpty) return getListView(getCurrentDayTasks());
     else return getEmptyText();
   }
 
@@ -136,7 +138,7 @@ class TaskList extends State<CurrentTasks> with Data {
         isScrollControlled: true,
         context: context,
         builder: (context){
-      return AddTaskDialog(task: task,);
+      return AddTaskDialog(AddTaskType.CURRENT_DAY, task: task);
     }).whenComplete(() =>
         {
           setState(() {})
@@ -146,6 +148,25 @@ class TaskList extends State<CurrentTasks> with Data {
 }
 
 Widget getEmptyText() {
-  return Center(child: Text("Нет ни одной таски"));
+  return Center(child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(
+        Ghost.enemy_ghost,
+        size: 54,
+        color: Colors.blue[800]?.withAlpha(95),
+      ),
+      Container(
+        margin: EdgeInsets.all(8),
+        child: Text(
+          Strings.not_tasks_for_today,
+          maxLines: 2,
+        style: TextStyle(
+            color: Colors.blue[800],
+            fontSize: 16
+        ),),
+      ),
+    ],
+  ));
 }
 

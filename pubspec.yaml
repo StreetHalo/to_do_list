@@ -33,11 +33,11 @@ dependencies:
   hive: ^2.0.5
   hive_flutter: ^1.1.0
   flutter_slidable: ^1.2.0
+  scrollable_positioned_list: ^0.2.3
 
 dev_dependencies:
   hive_generator: ^1.1.0
   build_runner: ^2.1.2
-
 
 
 # For information on the generic Dart part of this file, see the
@@ -67,6 +67,11 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: Ghost
+      fonts:
+        - asset: lib/assets/fonts/Ghost.ttf
+
   # fonts:
   #   - family: Schyler
   #     fonts:

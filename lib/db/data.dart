@@ -1,13 +1,20 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:to_do_list/assets/formatter.dart';
 import 'package:to_do_list/data/task.dart';
 
 mixin Data {
 
-  List<Task> getCurrentTasks() {
+  List<Task> getAllTasks() {
     var box = Hive.box<Task>('tasks');
     return box.values.toList();
   }
+
+  List<Task> getCurrentDayTasks() =>
+      getAllTasks().where((task) =>
+      task.getFormattedDate() ==
+          Formatter.getFormattedDateByTimestamp(DateTime.now().millisecondsSinceEpoch))
+          .toList();
 
   void insertTask(Task task)  {
     var box = Hive.box<Task>('tasks');

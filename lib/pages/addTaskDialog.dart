@@ -10,11 +10,18 @@ import 'package:to_do_list/db/data.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
+enum AddTaskType{
+  CURRENT_DAY,
+  ANY_DAY
+}
+
 class AddTaskDialog extends StatefulWidget{
   Task? currentTask;
+  AddTaskType? dialogType;
   bool isEditDialog = false;
 
-  AddTaskDialog({Task? task}){
+  AddTaskDialog(AddTaskType type, {Task? task}){
+    dialogType = type;
     isEditDialog = task != null;
     currentTask = task ?? Task.getDefTask();
   }
@@ -61,11 +68,17 @@ class AddTaskState extends State<AddTaskDialog> with Data{
                   child: Container(
                     alignment: AlignmentDirectional.center,
                     child: TextButton.icon(
-                      icon: Icon(Icons.calendar_today),
+                      icon: Icon(
+                          Icons.calendar_today,
+                        color: widget.dialogType == AddTaskType.CURRENT_DAY ? _focusedTextColor : _unfocusedTextColor,
+                      ),
                       label: Text(
-                          DateFormat(dateFormat).format(_selectedDate!)
+                          DateFormat(dateFormat).format(_selectedDate!),
+                        style: TextStyle(
+                          color: widget.dialogType == AddTaskType.CURRENT_DAY ? _focusedTextColor : _unfocusedTextColor
+                        ),
                     ),
-                      onPressed: _showDatePicker,
+                      onPressed: widget.dialogType == AddTaskType.CURRENT_DAY ? null : _showDatePicker,
                     ),
                   ),
                 ),

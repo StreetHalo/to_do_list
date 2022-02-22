@@ -1,9 +1,11 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_list/assets/colors.dart';
+import 'package:to_do_list/assets/formatter.dart';
 
 part 'task.g.dart';
 
@@ -17,7 +19,6 @@ class Task {
   String id;
   @HiveField(3)
   int rangIndex;
-  String dateFormat = "dd/MM/yyyy";
 
   static Task _defTask = Task(
       "",
@@ -28,9 +29,17 @@ class Task {
 
   Task(this.about, this.timestamp, this.id, this.rangIndex);
 
-  String getFormattedDate() =>
-      DateFormat(dateFormat).format(
-          new DateTime.fromMicrosecondsSinceEpoch(timestamp));
+  String getFormattedDate() => Formatter.getFormattedDateByTimestamp(timestamp);
+
+  int getMonthOfDate() => DateTime.fromMillisecondsSinceEpoch(timestamp).month;
+
+  int getYearOfDate() => DateTime.fromMillisecondsSinceEpoch(timestamp).year;
+
+  int getDayOfDate() => DateTime.fromMillisecondsSinceEpoch(timestamp).day;
+
+  bool isCurrentDayTask() => DateTime.now().day == getDayOfDate() &&
+                              DateTime.now().month == getMonthOfDate() &&
+                                DateTime.now().year == getYearOfDate();
 
   static Task getDefTask() => _defTask;
 

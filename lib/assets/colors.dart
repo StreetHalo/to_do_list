@@ -12,6 +12,10 @@ class UserColors{
 
   static const MaterialColor highTaskMark = Colors.red;
 
+  static const MaterialColor taskDone = Colors.green;
+
+  static const MaterialColor taskRemove = Colors.red;
+
   static const Map<String, Color> rangColors = {
       Strings.task_time_rang_h: highTaskMark,
       Strings.task_time_rang_m: middleTaskMark,

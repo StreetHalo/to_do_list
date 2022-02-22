@@ -25,5 +25,13 @@ class Strings{
 
   static const String done = "Готово";
 
+  static const String not_tasks_for_today = "На сегодня нет никаких задач:(";
+
+  static const String not_tasks = "Нет ни одной задачи";
+
   static const String remove = "Удалить";
+
+  static const String appbar_title_current_tasks = "Задачи на сегодня";
+
+  static const String appbar_title_calendar = "Календарь";
 }
