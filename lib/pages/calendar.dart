@@ -1,13 +1,10 @@
 
 
 import 'dart:async';
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/formatter.dart';
@@ -53,15 +50,11 @@ class Calendar extends StatefulWidget{
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       Timer(Duration(milliseconds: 10), () => _scrollToCurrentDay(_currentDayIndex));
-      //_itemScrollController.jumpTo(index: 0);
     });
-    //_scrollToCurrentDay(_currentDayIndex);
-
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(Strings.appbar_title_calendar),
@@ -84,7 +77,10 @@ class Calendar extends StatefulWidget{
   openTaskDialog(BuildContext context, Task? _task) {
     showModalBottomSheet(context: context, builder: (context){
       return AddTaskDialog(AddTaskType.ANY_DAY);
-    });
+    }).whenComplete(() =>
+    {
+      setState(() {})}
+    );
   }
 
   Widget getBody() {
@@ -143,7 +139,7 @@ class Calendar extends StatefulWidget{
       Text(Formatter.getTitleDayByTimestamp(task.timestamp),
       style: TextStyle(
           fontSize: 15,
-          color: Colors.black54,
+          color: task.isCurrentDayTask() == true ? Colors.red[900] : Colors.black54,
       ),
       ),
       Visibility(

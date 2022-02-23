@@ -35,13 +35,9 @@ class AddTaskState extends State<AddTaskDialog> with Data{
   Color _errorTextColor = Colors.red;
   TextEditingController aboutTxtController = TextEditingController();
   TextEditingController dataTxtController = TextEditingController();
-  DateTime? _selectedDate;
+  DateTime? _selectedDate = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
   String dateFormat = "dd/MM/yyyy";
   final _validationKey = GlobalKey<FormState>();
-
-  AddTaskState(){
-   _selectedDate = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
-  }
 
  @override
   Widget build(BuildContext context) {
@@ -222,8 +218,10 @@ class AddTaskState extends State<AddTaskDialog> with Data{
           initialDate: DateTime.now(),
           firstDate: DateTime(currentYear),
           lastDate: DateTime(currentYear + 1)).then((value) => {
-            if(value != null) _selectedDate = value,
-           // this.setState(() {}),
+            if(value != null) {
+              _selectedDate = value,
+              this.setState(() {}),
+            }
     });
   }
 
@@ -298,7 +296,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
     _validationKey.currentState?.validate();
     if(aboutTxtController.text.isEmpty) return;
     Task newTask = Task(
-          aboutTxtController.text,
+          aboutTxtController.text.trim(),
           _selectedDate?.millisecondsSinceEpoch ?? 0,
           Uuid().v4(),
           widget.currentTask?.rangIndex ?? 0
@@ -311,7 +309,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
       _validationKey.currentState?.validate();
       if(widget.currentTask?.about.isEmpty ?? true) return;
       Task newTask = Task(
-          aboutTxtController.text,
+          aboutTxtController.text.trim(),
           _selectedDate?.millisecondsSinceEpoch ?? 0,
           widget.currentTask?.id ?? "",
           widget.currentTask?.rangIndex ?? 0
