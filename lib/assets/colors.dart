@@ -16,6 +16,12 @@ class UserColors{
 
   static const MaterialColor taskRemove = Colors.red;
 
+  static const MaterialColor taskRepeat = Colors.amber;
+
+  static const MaterialColor taskAnalyticsDone = Colors.green;
+
+  static const MaterialColor taskAnalyticRemove = Colors.amber;
+
   static const Map<String, Color> rangColors = {
       Strings.task_time_rang_h: highTaskMark,
       Strings.task_time_rang_m: middleTaskMark,

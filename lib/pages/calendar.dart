@@ -8,6 +8,7 @@ import 'package:hive/hive.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/formatter.dart';
+import 'package:to_do_list/assets/ghost_icons.dart';
 import 'package:to_do_list/assets/strings.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
@@ -47,13 +48,6 @@ class Calendar extends StatefulWidget{
   int _currentDayIndex = 0;
 
   @override
-  void initState() {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      Timer(Duration(milliseconds: 10), () => _scrollToCurrentDay(_currentDayIndex));
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -75,7 +69,10 @@ class Calendar extends StatefulWidget{
 }
 
   openTaskDialog(BuildContext context, Task? _task) {
-    showModalBottomSheet(context: context, builder: (context){
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context){
       return AddTaskDialog(AddTaskType.ANY_DAY);
     }).whenComplete(() =>
     {
@@ -90,9 +87,23 @@ class Calendar extends StatefulWidget{
 
   Widget getEmptyText() {
     return Center(child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-      //  Icon(AssetImage('drawable/enemy-ghost.svg'));
-        Text(Strings.not_tasks)
+        Icon(
+          Icons.calendar_today_sharp,
+          size: 54,
+          color: Colors.blue[800]?.withAlpha(95),
+        ),
+        Container(
+          margin: EdgeInsets.all(8),
+          child: Text(
+            Strings.not_tasks,
+            maxLines: 2,
+            style: TextStyle(
+                color: Colors.blue[800],
+                fontSize: 16
+            ),),
+        ),
       ],
     ));
   }
@@ -165,6 +176,7 @@ class Calendar extends StatefulWidget{
           flex: 2,
           onPressed: (_) {
             removeTask(_task);
+            insertRemovedTask(_task);
             setState(() {});
           },
           backgroundColor: UserColors.taskRemove,
@@ -174,7 +186,10 @@ class Calendar extends StatefulWidget{
         ),
         SlidableAction(
           flex: 2,
-          onPressed: (_) {},
+          onPressed: (_) {
+            removeTask(_task);
+            insertFinishedTask(_task);
+          },
           backgroundColor: UserColors.taskDone,
           foregroundColor: Colors.white,
           icon: Icons.done,
@@ -184,12 +199,7 @@ class Calendar extends StatefulWidget{
     ),
     child: getTaskByCard(_task),
   );
-
-  void removeTask(Task task)  {
-    var box = Hive.box<Task>('tasks');
-    box.deleteAt(box.values.toList().indexOf(task));
-  }
-
+  
   InkWell getTaskByCard(Task _task){
     return InkWell(
       onTap: (){

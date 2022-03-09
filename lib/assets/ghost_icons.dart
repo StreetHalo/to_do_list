@@ -22,4 +22,5 @@ class Ghost {
   static const String? _kFontPkg = null;
 
   static const IconData enemy_ghost = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+
 }

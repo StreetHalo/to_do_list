@@ -10,13 +10,33 @@ mixin Data {
     return box.values.toList();
   }
 
+  List<Task> getRemovedTasks() {
+    var box = Hive.box<Task>('removed_tasks');
+    return box.values.toList();
+  }
+
+  List<Task> getFinishedTasks() {
+    var box = Hive.box<Task>('finished_tasks');
+    return box.values.toList();
+  }
+
   List<Task> getCurrentDayTasks() =>
       getAllTasks().where((task) =>
       task.getFormattedDate() ==
           Formatter.getFormattedDateByTimestamp(DateTime.now().millisecondsSinceEpoch))
           .toList();
 
-  void insertTask(Task task)  {
+  void insertFinishedTask(Task task){
+    var box = Hive.box<Task>('finished_tasks');
+    box.add(task);
+  }
+
+  void insertRemovedTask(Task task){
+    var box = Hive.box<Task>('removed_tasks');
+    box.add(task);
+  }
+
+  void insertNewTask(Task task, )  {
     var box = Hive.box<Task>('tasks');
     box.add(task);
   }
@@ -34,6 +54,6 @@ mixin Data {
   void editTask(Task editedTask){
     var task = getTaskById(editedTask.id);
     removeTask(task);
-    insertTask(editedTask);
+    insertNewTask(editedTask);
   }
 }

@@ -5,13 +5,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/data/task.dart';
+import 'package:to_do_list/pages/analytics.dart';
 import 'package:to_do_list/pages/calendar.dart';
 import 'package:to_do_list/pages/currentTasks.dart';
+
+import 'assets/strings.dart';
 
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter<Task>(TaskAdapter());
   await Hive.openBox<Task>('tasks');
+  await Hive.openBox<Task>('removed_tasks');
+  await Hive.openBox<Task>('finished_tasks');
   runApp(MyApp());
 }
 
@@ -40,7 +45,7 @@ class _MainWidgetState extends State<MainWidget> {
   List<Widget> _widgetOptions = [
     CurrentTasks(),
     Calendar(),
-    Text("Settings")
+    Analytics()
   ];
 
   void _onItemTapped(int index){
@@ -62,14 +67,14 @@ class _MainWidgetState extends State<MainWidget> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Home"),
+              icon: Icon(Icons.event_available),
+              label: Strings.bottomBar_title_current_day),
           BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today_sharp),
-              label: "Calendar"),
+              label: Strings.bottomBar_title_calendar),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "Settings")
+              icon: Icon(Icons.analytics),
+              label: Strings.bottomBar_title_analytics)
         ],
         backgroundColor: UserColors.main,
         currentIndex: _selectedIndex,

@@ -301,7 +301,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
           Uuid().v4(),
           widget.currentTask?.rangIndex ?? 0
       );
-      insertTask(newTask);
+      insertNewTask(newTask);
       Navigator.pop(context);
     }
 
@@ -317,9 +317,7 @@ class AddTaskState extends State<AddTaskDialog> with Data{
       log("edit");
       editTask(newTask);
       Navigator.pop(context);
-
     }
-
 }
 
 class TitleWidget extends StatelessWidget {
