@@ -1,27 +1,26 @@
 
-
-import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:hive/hive.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/formatter.dart';
-import 'package:to_do_list/assets/ghost_icons.dart';
 import 'package:to_do_list/assets/strings.dart';
+import 'package:to_do_list/assets/widgets/empty_status.dart';
+import 'package:to_do_list/assets/widgets/task_card.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
 import 'addTaskDialog.dart';
 
-enum TaskType{
+enum CalendarTaskType{
     MONTH_TITLE,
     DAY_TITLE,
     TASK
 }
 
 class TaskItem{
-  TaskType type;
+  CalendarTaskType type;
   Task? task;
 
   TaskItem(this.type, this.task);
@@ -43,7 +42,7 @@ class Calendar extends StatefulWidget{
   createState() => CalendarState();
 }
 
-  class CalendarState extends State<Calendar> with Data{
+  class CalendarState extends State<Calendar> with Data implements WorkWithTasks{
   final ItemScrollController _itemScrollController = ItemScrollController();
   int _currentDayIndex = 0;
 
@@ -68,6 +67,23 @@ class Calendar extends StatefulWidget{
     );
 }
 
+  Widget getBody() {
+    if(getCurrentTasks().isNotEmpty) return getListView(getTaskItems());
+    else return EmptyStatus(PageType.CALENDAR);
+  }
+
+  void setRemovedTask(_task){
+    insertRemovedTask(_task);
+    setState(() {});
+  }
+
+  void setFinishedTask(_task){
+    insertFinishedTask(_task);
+    setState(() {});
+  }
+
+  void editTaskByDialog(_task) => openTaskDialog(context, _task);
+
   openTaskDialog(BuildContext context, Task? _task) {
     showModalBottomSheet(
         isScrollControlled: true,
@@ -80,34 +96,6 @@ class Calendar extends StatefulWidget{
     );
   }
 
-  Widget getBody() {
-    if(getAllTasks().isNotEmpty) return getListView(getTaskItems());
-    else return getEmptyText();
-  }
-
-  Widget getEmptyText() {
-    return Center(child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.calendar_today_sharp,
-          size: 54,
-          color: Colors.blue[800]?.withAlpha(95),
-        ),
-        Container(
-          margin: EdgeInsets.all(8),
-          child: Text(
-            Strings.not_tasks,
-            maxLines: 2,
-            style: TextStyle(
-                color: Colors.blue[800],
-                fontSize: 16
-            ),),
-        ),
-      ],
-    ));
-  }
-
   ScrollablePositionedList getListView(List<TaskItem> tasks){
     return ScrollablePositionedList.builder(
         itemCount: tasks.length,
@@ -117,19 +105,17 @@ class Calendar extends StatefulWidget{
         });
   }
 
-
-
   Widget getTaskTitle(TaskItem item){
     switch(item.type){
-      case TaskType.TASK: return Padding(
+      case CalendarTaskType.TASK: return Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-        child: getSlide(item.task ?? Task.getDefTask()),
+        child: getTaskCard(item.task ?? Task.getDefTask()),
       );
-      case TaskType.MONTH_TITLE: return Padding(
+      case CalendarTaskType.MONTH_TITLE: return Padding(
         padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
         child: getMonthTitle(item.task ?? Task.getDefTask()),
       );
-      case TaskType.DAY_TITLE: return Padding(
+      case CalendarTaskType.DAY_TITLE: return Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
         child: getDayTitle(item.task ?? Task.getDefTask()),
       );
@@ -165,91 +151,11 @@ class Calendar extends StatefulWidget{
     ],
   );
 
-
-
-  Slidable getSlide(Task _task) => Slidable(
-    key: const ValueKey(0),
-    endActionPane: ActionPane(
-      motion: DrawerMotion(),
-      children: [
-        SlidableAction(
-          flex: 2,
-          onPressed: (_) {
-            removeTask(_task);
-            insertRemovedTask(_task);
-            setState(() {});
-          },
-          backgroundColor: UserColors.taskRemove,
-          foregroundColor: Colors.white,
-          icon: Icons.delete_forever,
-          label: Strings.remove,
-        ),
-        SlidableAction(
-          flex: 2,
-          onPressed: (_) {
-            removeTask(_task);
-            insertFinishedTask(_task);
-          },
-          backgroundColor: UserColors.taskDone,
-          foregroundColor: Colors.white,
-          icon: Icons.done,
-          label: Strings.done,
-        ),
-      ],
-    ),
-    child: getTaskByCard(_task),
-  );
-  
-  InkWell getTaskByCard(Task _task){
-    return InkWell(
-      onTap: (){
-        openTaskDialog(context, Task(
-            _task.about,
-            _task.timestamp,
-            _task.id,
-            _task.rangIndex
-        ));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            color: UserColors.getTaskBackground(UserColors.rangColors.values.elementAt(_task.rangIndex)),
-            border: Border.all(color: Colors.black12),
-            borderRadius: BorderRadius.all(Radius.circular(0))
-        ),
-
-        child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: [
-                SizedBox(height: 12),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(_task.about,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold
-                        )
-                    ),
-                    Spacer(),
-                    Icon(
-                      Icons.circle,
-                      color: Task.getTaskRangColor(_task),
-                      size: 24,
-                    )
-                  ],
-                ),
-                SizedBox(height: 12),
-              ],
-            )),
-      ),
-    );
-  }
+  Widget getTaskCard(Task _task) => TaskCard(_task, this);
 
   List<TaskItem> getTaskItems() {
     Task? _task;
-    List _sortedList = getAllTasks();
+    List _sortedList = getCurrentTasks();
 
     _sortedList.sort((a,b) =>
         a.timestamp.compareTo(b.timestamp)
@@ -259,16 +165,15 @@ class Calendar extends StatefulWidget{
       Task task = element;
       if(_task?.getMonthOfDate() != task.getMonthOfDate() ||
           _task?.getYearOfDate() != task.getYearOfDate()){
-        taskItems.add(TaskItem(TaskType.MONTH_TITLE, task));
+        taskItems.add(TaskItem(CalendarTaskType.MONTH_TITLE, task));
       }
-      if(!taskItems.contains(TaskItem(TaskType.DAY_TITLE, task)))
-        taskItems.add(TaskItem(TaskType.DAY_TITLE, task));
-      taskItems.add(TaskItem(TaskType.TASK, task));
+      if(!taskItems.contains(TaskItem(CalendarTaskType.DAY_TITLE, task)))
+        taskItems.add(TaskItem(CalendarTaskType.DAY_TITLE, task));
+      taskItems.add(TaskItem(CalendarTaskType.TASK, task));
       if(_currentDayIndex == 0 && task.isCurrentDayTask()) {
         _currentDayIndex = taskItems.length;
       }
       _task = task;
-
     });
     return taskItems;
   }

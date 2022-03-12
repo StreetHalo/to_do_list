@@ -1,12 +1,8 @@
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:to_do_list/assets/colors.dart';
-import 'package:to_do_list/assets/ghost_icons.dart';
-import 'package:to_do_list/assets/strings.dart';
+import 'package:to_do_list/assets/widgets/empty_status.dart';
+import 'package:to_do_list/assets/widgets/task_card.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
 
@@ -17,7 +13,7 @@ class CurrentTasks extends StatefulWidget {
   createState() => TaskList();
 }
 
-class TaskList extends State<CurrentTasks> with Data {
+class TaskList extends State<CurrentTasks> with Data implements WorkWithTasks {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,86 +48,24 @@ class TaskList extends State<CurrentTasks> with Data {
         });
   }
 
-  Slidable getSlide(Task _task) => Slidable(
-        key: const ValueKey(0),
-        endActionPane: ActionPane(
-          motion: DrawerMotion(),
-          children: [
-            SlidableAction(
-              flex: 2,
-              onPressed: (_) {
-                removeTask(_task);
-                setState(() {});
-              },
-              backgroundColor: UserColors.taskRemove,
-              foregroundColor: Colors.white,
-              icon: Icons.delete_forever,
-              label: Strings.remove,
-            ),
-            SlidableAction(
-              flex: 2,
-              onPressed: (_) {},
-              backgroundColor: UserColors.taskDone,
-              foregroundColor: Colors.white,
-              icon: Icons.done,
-              label: Strings.done,
-            ),
-          ],
-        ),
-        child: getTaskByCard(_task),
-      );
-
-  InkWell getTaskByCard(Task _task){
-    return InkWell(
-      onTap: (){
-        openTaskDialog(context, Task(
-            _task.about,
-            _task.timestamp,
-            _task.id,
-            _task.rangIndex
-        ));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: UserColors.getTaskBackground(UserColors.rangColors.values.elementAt(_task.rangIndex)),
-          border: Border.all(color: Colors.black12),
-          borderRadius: BorderRadius.all(Radius.circular(0))
-        ),
-
-        child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: [
-                SizedBox(height: 12),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(_task.about,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold
-                        )
-                    ),
-                    Spacer(),
-                    Icon(
-                      Icons.circle,
-                      color: Task.getTaskRangColor(_task),
-                      size: 24,
-                    )
-                  ],
-                ),
-                SizedBox(height: 12),
-              ],
-            )),
-      ),
-    );
-  }
-
   Widget getBody() {
     if(getCurrentDayTasks().isNotEmpty) return getListView(getCurrentDayTasks());
-    else return getEmptyText();
+    else return EmptyStatus(PageType.CURRENT_DAY);
   }
+
+  Widget getSlide(Task _task) => TaskCard(_task, this);
+
+  void setRemovedTask(_task){
+    insertRemovedTask(_task);
+    setState(() {});
+  }
+
+  void setFinishedTask(_task){
+    insertFinishedTask(_task);
+    setState(() {});
+  }
+
+  void editTaskByDialog(_task) => openTaskDialog(context, _task);
 
   openTaskDialog(BuildContext context, [Task? task]) {
     showModalBottomSheet(
@@ -145,28 +79,5 @@ class TaskList extends State<CurrentTasks> with Data {
         }
     );
   }
-}
-
-Widget getEmptyText() {
-  return Center(child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(
-        Ghost.enemy_ghost,
-        size: 54,
-        color: Colors.blue[800]?.withAlpha(95),
-      ),
-      Container(
-        margin: EdgeInsets.all(8),
-        child: Text(
-          Strings.not_tasks_for_today,
-          maxLines: 2,
-        style: TextStyle(
-            color: Colors.blue[800],
-            fontSize: 16
-        ),),
-      ),
-    ],
-  ));
 }
 

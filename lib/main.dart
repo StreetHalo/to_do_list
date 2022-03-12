@@ -14,9 +14,8 @@ import 'assets/strings.dart';
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter<Task>(TaskAdapter());
+  Hive.registerAdapter<TaskType>(TaskTypeAdapter());
   await Hive.openBox<Task>('tasks');
-  await Hive.openBox<Task>('removed_tasks');
-  await Hive.openBox<Task>('finished_tasks');
   runApp(MyApp());
 }
 

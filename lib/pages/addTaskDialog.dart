@@ -299,7 +299,8 @@ class AddTaskState extends State<AddTaskDialog> with Data{
           aboutTxtController.text.trim(),
           _selectedDate?.millisecondsSinceEpoch ?? 0,
           Uuid().v4(),
-          widget.currentTask?.rangIndex ?? 0
+          widget.currentTask?.rangIndex ?? 0,
+          TaskType.CURRENT
       );
       insertNewTask(newTask);
       Navigator.pop(context);
@@ -312,7 +313,8 @@ class AddTaskState extends State<AddTaskDialog> with Data{
           aboutTxtController.text.trim(),
           _selectedDate?.millisecondsSinceEpoch ?? 0,
           widget.currentTask?.id ?? "",
-          widget.currentTask?.rangIndex ?? 0
+          widget.currentTask?.rangIndex ?? 0,
+          TaskType.CURRENT
       );
       log("edit");
       editTask(newTask);

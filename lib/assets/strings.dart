@@ -29,6 +29,8 @@ class Strings{
 
   static const String not_tasks = "Вы еще не добавили ни одной задачи";
 
+  static const String not_tasks_for_analytic = "Вы еще ничего не сделали!";
+
   static const String remove = "Удалить";
 
   static const String repeat = "Повторить";

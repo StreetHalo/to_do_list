@@ -2,6 +2,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do_list/assets/strings.dart';
+import 'package:to_do_list/assets/widgets/empty_status.dart';
+import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
 import 'package:to_do_list/pages/TaskList.dart';
 
@@ -15,21 +17,35 @@ class AnalyticsState extends State<Analytics> with Data{
 
   var _radiusSize = 100.0;
   int touchedIndex = -1;
+  List<TaskType> currentTypes = [];
 
   @override
   Widget build(BuildContext context) {
+    currentTypes.clear();
+
     return Scaffold(
         appBar: AppBar(
           title: Text(Strings.appbar_title_analytics),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: _getPieChart(),
-            ),
-            _getLegend()
-          ],
-        ));
+        body: _getBody()
+    );
+  }
+
+  Widget _getBody() {
+    if(getFinishedTasks().isNotEmpty || getRemovedTasks().isNotEmpty)
+      return showPieChart();
+    else return EmptyStatus(PageType.ANALYTIC);
+  }
+
+  Widget showPieChart() {
+    return Column(
+      children: [
+        Expanded(
+          child: _getPieChart(),
+        ),
+        _getLegend()
+      ],
+    );
   }
 
   Widget _getPieChart() {
@@ -91,7 +107,7 @@ List<PieChartSectionData> _showingSections() {
           return PieChartSectionData(
             color: const Color(0xff0293ee),
             value: getFinishedTasks().length.toDouble(),
-            title: getPercentByType(TaskStatusType.DONE),
+            title: getPercentByType(TaskType.DONE),
             radius: radius,
             titleStyle: TextStyle(
                 fontSize: fontSize,
@@ -102,7 +118,7 @@ List<PieChartSectionData> _showingSections() {
           return PieChartSectionData(
             color: const Color(0xfff8b250),
             value: getRemovedTasks().length.toDouble(),
-            title: getPercentByType(TaskStatusType.CANCEL),
+            title: getPercentByType(TaskType.REMOVED),
             radius: radius,
             titleStyle: TextStyle(
                 fontSize: fontSize,
@@ -115,25 +131,30 @@ List<PieChartSectionData> _showingSections() {
     });
   }
 
-  String getPercentByType(TaskStatusType taskType){
+  String getPercentByType(TaskType taskType){
     switch(taskType){
-      case TaskStatusType.DONE: {
+      case TaskType.DONE: {
+        if(getFinishedTasks().length == 0) return "";
+        currentTypes.add(taskType);
        int percent = ((getFinishedTasks().length / (getFinishedTasks().length + getRemovedTasks().length)) * 100.0).toInt();
        return "$percent%";
       }
-      case TaskStatusType.CANCEL: {
+      case TaskType.REMOVED: {
+        if(getRemovedTasks().length == 0) return "";
+        currentTypes.add(taskType);
         int percent = ((getRemovedTasks().length / (getFinishedTasks().length + getRemovedTasks().length)) * 100.0).toInt();
         return "$percent%";
       }
-      case TaskStatusType.CURRENT: return "";
+      case TaskType.CURRENT: return "";
     }
   }
 
   void _openTaskListByIndex(int touchedIndex) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FinishedTasksPage(TaskStatusType.values[touchedIndex])),
-    );
+      MaterialPageRoute(builder: (context) =>
+          FinishedTasksPage(currentTypes[touchedIndex])),
+    ).whenComplete(() => setState((){}));
   }
 }
 

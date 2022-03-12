@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -6,18 +8,10 @@ import 'package:to_do_list/assets/strings.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
 
-enum TaskStatusType{
-  DONE,
-  CANCEL,
-  CURRENT
-}
-
 class FinishedTasksPage extends StatefulWidget{
-   final TaskStatusType currentType;
+   final TaskType currentType;
 
-  const FinishedTasksPage(
-      this.currentType
-      );
+  const FinishedTasksPage(this.currentType);
 
 @override
   State<StatefulWidget> createState() => TaskListState();
@@ -26,9 +20,9 @@ class FinishedTasksPage extends StatefulWidget{
 class TaskListState extends State<FinishedTasksPage> with Data{
 
 
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_getTitle()),
@@ -39,7 +33,7 @@ class TaskListState extends State<FinishedTasksPage> with Data{
 
 
   String _getTitle(){
-    if(widget.currentType == TaskStatusType.DONE) return Strings.title_done_tasks;
+    if(widget.currentType == TaskType.DONE) return Strings.title_done_tasks;
     else return Strings.title_canceled_tasks;
   }
 
@@ -56,8 +50,8 @@ class TaskListState extends State<FinishedTasksPage> with Data{
     );
   }
 
-  List<Task> _getTasksByType(TaskStatusType type){
-    if(type == TaskStatusType.CANCEL) return getRemovedTasks();
+  List<Task> _getTasksByType(TaskType type){
+    if(type == TaskType.REMOVED) return getRemovedTasks();
     else return getFinishedTasks();
   }
 
@@ -69,7 +63,7 @@ class TaskListState extends State<FinishedTasksPage> with Data{
         SlidableAction(
           flex: 2,
           onPressed: (_) {
-            _showRepeatDialog(context);
+            _showRepeatDialog(context, _task);
             },
           backgroundColor: UserColors.taskRepeat,
           foregroundColor: Colors.white,
@@ -84,7 +78,7 @@ class TaskListState extends State<FinishedTasksPage> with Data{
   InkWell getTaskByCard(Task _task){
     return InkWell(
       onTap: (){
-        _showRepeatDialog(context);
+        _showRepeatDialog(context, _task);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -123,7 +117,7 @@ class TaskListState extends State<FinishedTasksPage> with Data{
     );
   }
 
-  void _showRepeatDialog(BuildContext context) {
+  void _showRepeatDialog(BuildContext context, Task task) {
     showDialog(
       context: context,
       builder: (context) {
@@ -149,7 +143,11 @@ class TaskListState extends State<FinishedTasksPage> with Data{
                 TextButton(
                   onPressed: () => {
                     Navigator.pop(context),
-                    this.setState(() {}),
+                    insertCurrentTask(task),
+                    this.setState(() {
+                      if(_getTasksByType(widget.currentType).isEmpty)
+                        Navigator.pop(context);
+                    }),
                   },
                   child: Text(Strings.dialog_ok.toUpperCase()),
                 ),

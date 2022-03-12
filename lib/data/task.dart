@@ -3,11 +3,20 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/formatter.dart';
 
 part 'task.g.dart';
+
+@HiveType(typeId: 1)
+enum TaskType {
+  @HiveField(0)
+  CURRENT,
+  @HiveField(1)
+  DONE,
+  @HiveField(2)
+  REMOVED
+}
 
 @HiveType(typeId: 0)
 class Task {
@@ -19,15 +28,24 @@ class Task {
   String id;
   @HiveField(3)
   int rangIndex;
+  @HiveField(4)
+  TaskType type;
 
   static Task _defTask = Task(
       "",
       DateTime(DateTime.now().year).microsecondsSinceEpoch,
       "",
-      UserColors.getDefaultRangIndex()
+      UserColors.getDefaultRangIndex(),
+      TaskType.CURRENT
   );
 
-  Task(this.about, this.timestamp, this.id, this.rangIndex);
+  Task(
+     this.about,
+     this.timestamp,
+     this.id,
+     this.rangIndex,
+     this.type
+  );
 
   String getFormattedDate() => Formatter.getFormattedDateByTimestamp(timestamp);
 
