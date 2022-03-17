@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/strings.dart';
+import 'package:to_do_list/assets/widgets/snack.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
 
@@ -144,6 +145,7 @@ class TaskListState extends State<FinishedTasksPage> with Data{
                   onPressed: () => {
                     Navigator.pop(context),
                     insertCurrentTask(task),
+                    callSnackbar(context, SnackType.TASK_RESET),
                     this.setState(() {
                       if(_getTasksByType(widget.currentType).isEmpty)
                         Navigator.pop(context);

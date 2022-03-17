@@ -8,6 +8,7 @@ import 'package:to_do_list/assets/colors.dart';
 import 'package:to_do_list/assets/formatter.dart';
 import 'package:to_do_list/assets/strings.dart';
 import 'package:to_do_list/assets/widgets/empty_status.dart';
+import 'package:to_do_list/assets/widgets/snack.dart';
 import 'package:to_do_list/assets/widgets/task_card.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
@@ -73,11 +74,13 @@ class Calendar extends StatefulWidget{
   }
 
   void setRemovedTask(_task){
+    callSnackbar(context, SnackType.TASK_REMOVED);
     insertRemovedTask(_task);
     setState(() {});
   }
 
   void setFinishedTask(_task){
+    callSnackbar(context, SnackType.TASK_DONE);
     insertFinishedTask(_task);
     setState(() {});
   }

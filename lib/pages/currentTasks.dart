@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:to_do_list/assets/widgets/empty_status.dart';
+import 'package:to_do_list/assets/widgets/snack.dart';
 import 'package:to_do_list/assets/widgets/task_card.dart';
 import 'package:to_do_list/data/task.dart';
 import 'package:to_do_list/db/data.dart';
@@ -56,11 +57,13 @@ class TaskList extends State<CurrentTasks> with Data implements WorkWithTasks {
   Widget getSlide(Task _task) => TaskCard(_task, this);
 
   void setRemovedTask(_task){
+    callSnackbar(context, SnackType.TASK_REMOVED);
     insertRemovedTask(_task);
     setState(() {});
   }
 
   void setFinishedTask(_task){
+    callSnackbar(context, SnackType.TASK_DONE);
     insertFinishedTask(_task);
     setState(() {});
   }

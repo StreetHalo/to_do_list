@@ -12,6 +12,8 @@ class UserColors{
 
   static const MaterialColor highTaskMark = Colors.red;
 
+  static const MaterialColor taskAdded = main;
+
   static const MaterialColor taskDone = Colors.green;
 
   static const MaterialColor taskRemove = Colors.red;
